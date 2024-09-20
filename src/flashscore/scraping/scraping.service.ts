@@ -48,28 +48,24 @@ export class ScrapingService {
       }
       oddsRows.forEach(row => {
         const site = row.querySelector('.ui-table__row .oddsCell__bookmaker').querySelector('a')?.title || null;
+        const image = row.querySelector('.ui-table__row .oddsCell__bookmaker').querySelector('img')?.src || null;
         if (site) {
           const odds = Array.from(row.querySelectorAll('.oddsCell__odd')).map(odd => {
             const oddElement = odd as HTMLElement; // Asserção de tipo
             return { 
-              value: oddElement.textContent.trim(),
-              link: oddElement.querySelector('a')?.href || null,
-              image: oddElement.querySelector('img')?.src,
-              title: oddElement.querySelector('a')?.title || null,
+              value: oddElement.textContent.trim()
             };
+
           }); 
 
           if (!oddsData[site]) {
             oddsData[site] = [];
           }
-          oddsData[site].push(...odds);
+          oddsData[site].push({ image, ...odds});
         }
       });
-      console.log('tentando olds: ', oddsData)
       return oddsData;
     });
-
-    console.log('Odds data:', olds);
     return olds;
   }
 
@@ -82,8 +78,6 @@ export class ScrapingService {
 
     // Coletando dados de odds
     const oldsData = await this.getOldsData(page, matchId);
-    console.log('oldsdata: ', oldsData)
-    return oldsData;
     // Coletando dados da partida
     const data = await page.evaluate(() => {
       const homeTeamElement = document.querySelector(".duelParticipant__home .participant__participantName");

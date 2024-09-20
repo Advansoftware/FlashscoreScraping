@@ -39,6 +39,7 @@ export class FlashscoreService {
     } finally {
       if (browser) {
         await browser.close();
+        
         console.log('Browser closed');
       }
     }
