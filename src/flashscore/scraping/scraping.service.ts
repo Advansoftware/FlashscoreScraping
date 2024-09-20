@@ -8,13 +8,9 @@ export class ScrapingService {
   // Obtém a lista de IDs das partidas
   async getMatchIdList(page): Promise<string[]> {
     const url = `https://www.flashscore.com/football/brazil/serie-a/results/`;
-    console.log(`Navigating to ${url}`);
     await page.goto(url);
-    console.log('Accepting cookies...');
     await this.clickService.clickElementIfExists(page, "#onetrust-accept-btn-handler");
     await this.clickService.customClick(page, "a.event__more.event__more--static");
-
-    console.log('Fetching match IDs from the page...');
     const matchIdList = await page.evaluate(() => {
       return Array.from(
         document.querySelectorAll(".event__match.event__match--static.event__match--twoLine")
@@ -37,12 +33,9 @@ export class ScrapingService {
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
     const debug = await page.$$('.ui-table__row ');
-    console.log(`Found ${debug.length} elements`);
 
     const olds = await page.evaluate(() => {
       const oddsData: Record<string, any[]> = {};
-
-      // Captura todos os sites de apostas
       const oddsRows = Array.from(document.querySelectorAll('.ui-table__row'));
 
       if (oddsRows.length === 0) {
@@ -74,15 +67,12 @@ export class ScrapingService {
 
       return oddsData;
     });
-
-    console.log('Odds data:', olds);
     return olds;
   }
 
   // Obtém os dados da partida, incluindo as odds
   async getMatchData(page, matchId): Promise<any> {
     const url = `https://www.flashscore.com/match/${matchId}/#/match-summary/match-statistics/0`;
-    console.log(`Navigating to ${url}`);
     await page.goto(url);
 
     await new Promise((resolve) => setTimeout(resolve, 1500));
@@ -109,15 +99,13 @@ export class ScrapingService {
     });
 
     const { homeTeamName, awayTeamName, homeGoals, awayGoals } = data;
-
-    // Retornando os dados da partida junto com as odds
     return {
       [homeTeamName]: {
         goals: homeGoals,
       },
       [awayTeamName]: {
         goals: awayGoals,
-        //bettingInfo: oldsData[awayTeamName] || [], // Adicionando odds ao time visitante
+        //bettingInfo: oldsData[awayTeamName] || [],
       },
       olds: oldsData
     };

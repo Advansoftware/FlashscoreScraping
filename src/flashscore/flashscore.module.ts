@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
-import { FlashscoreController } from './flashscore.controller';
 import { FlashscoreService } from './flashscore.service';
 import { ScrapingService } from './scraping/scraping.service';
 import { ClickService } from './scraping/click.service';
+import { FutebolController } from './futebol/futebol.controller';
 
 @Module({
-  controllers: [FlashscoreController],
-  providers: [FlashscoreService,ScrapingService,ClickService]
+  controllers: [FutebolController],
+  providers: [FlashscoreService, ClickService, ScrapingService]
 })
 export class FlashscoreModule {}
