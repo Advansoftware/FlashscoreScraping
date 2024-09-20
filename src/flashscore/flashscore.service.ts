@@ -20,7 +20,7 @@ export class FlashscoreService {
 
       const page = await browser.newPage();
       const matchIdList = await this.scrapingService.getMatchIdList(page);
-
+      
       for (const matchId of matchIdList) {
         const matchData = await this.scrapingService.getMatchData(page, matchId);
         matchDataList.push(matchData);

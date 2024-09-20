@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { ClickService } from './click.service'; // Ajuste o caminho conforme necessário
+import { ClickService } from './click.service';
 
 @Injectable()
 export class ScrapingService {
   constructor(private readonly clickService: ClickService) {}
 
-  // Obtém a lista de IDs das partidas
+  // lista de IDs das partidas
   async getMatchIdList(page): Promise<string[]> {
     const url = `https://www.flashscore.com/football/brazil/serie-a/results/`;
     await page.goto(url);
@@ -20,12 +20,12 @@ export class ScrapingService {
     return matchIdList;
   }
 
-  // Obtém as odds para cada partida
+  // odds para cada partida
   async getOldsData(page, matchId): Promise<any[]> {
     const url = `https://www.flashscore.com/match/${matchId}/#/odds-comparison`;
     await page.goto(url);
 
-    // Espera um pouco para o conteúdo carregar
+    // espera um pouco para o conteúdo carregar
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
     const olds = await page.evaluate(() => {
@@ -42,7 +42,7 @@ export class ScrapingService {
 
         if (site) {
           const odds = Array.from(row.querySelectorAll('.oddsCell__odd')).map((odd) => {
-            const oddElement = odd as HTMLElement; // Asserção de tipo
+            const oddElement = odd as HTMLElement;
             return {
               value: oddElement.textContent.trim(),
             };
@@ -64,16 +64,16 @@ export class ScrapingService {
     return olds;
   }
 
-  // Obtém os dados da partida, incluindo as odds
+  // dados da partida, incluindo as odds
   async getMatchData(page, matchId): Promise<any> {
     const url = `https://www.flashscore.com/match/${matchId}/#/match-summary/match-statistics/0`;
     await page.goto(url);
 
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    // Coletando dados de odds
+    // dados de odds
     const oldsData = await this.getOldsData(page, matchId);
-    // Coletando dados da partida
+    // dados da partida
     const data = await page.evaluate(() => {
       const homeTeamElement = document.querySelector(".duelParticipant__home .participant__participantName");
       const awayTeamElement = document.querySelector(".duelParticipant__away .participant__participantName");
@@ -99,7 +99,6 @@ export class ScrapingService {
       },
       [awayTeamName]: {
         goals: awayGoals,
-        //bettingInfo: oldsData[awayTeamName] || [],
       },
       olds: oldsData
     };
