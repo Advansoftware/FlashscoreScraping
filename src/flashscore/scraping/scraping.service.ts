@@ -23,16 +23,10 @@ export class ScrapingService {
   // Obtém as odds para cada partida
   async getOldsData(page, matchId): Promise<any[]> {
     const url = `https://www.flashscore.com/match/${matchId}/#/odds-comparison`;
-    console.log(`Navigating to ${url}`);
     await page.goto(url);
-    page.on('console', (msg) => {
-      console.log('PAGE LOG:', msg.text());
-    });
 
     // Espera um pouco para o conteúdo carregar
     await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    const debug = await page.$$('.ui-table__row ');
 
     const olds = await page.evaluate(() => {
       const oddsData: Record<string, any[]> = {};
