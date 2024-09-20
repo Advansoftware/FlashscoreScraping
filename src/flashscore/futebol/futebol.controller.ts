@@ -6,7 +6,7 @@ import { FlashscoreService } from '../flashscore.service';
 export class FutebolController {
   constructor(private readonly flashscoreService: FlashscoreService) {}
 
-  @Get()
+  @Get('result')
   async getFutebol(@Res() res: Response) {
     try {
       const matchData = await this.flashscoreService.getFutebol(); 
