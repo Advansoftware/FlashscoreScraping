@@ -33,7 +33,7 @@ export class ScrapingService {
       const oddsRows = Array.from(document.querySelectorAll('.ui-table__row'));
 
       if (oddsRows.length === 0) {
-        console.warn('No odds rows found.');
+        console.warn('Nenhuma old encontrada.');
       }
 
       oddsRows.forEach((row) => {
