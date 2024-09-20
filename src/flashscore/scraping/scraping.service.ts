@@ -5,6 +5,7 @@ import { ClickService } from './click.service'; // Ajuste o caminho conforme nec
 export class ScrapingService {
   constructor(private readonly clickService: ClickService) {}
 
+  // Obtém a lista de IDs das partidas
   async getMatchIdList(page): Promise<string[]> {
     const url = `https://www.flashscore.com/football/brazil/serie-a/results/`;
     console.log(`Navigating to ${url}`);
@@ -23,13 +24,14 @@ export class ScrapingService {
     return matchIdList;
   }
 
+  // Obtém as odds para cada partida
   async getOldsData(page, matchId): Promise<any[]> {
     const url = `https://www.flashscore.com/match/${matchId}/#/odds-comparison`;
     console.log(`Navigating to ${url}`);
     await page.goto(url);
-    page.on('console', msg => {
+    page.on('console', (msg) => {
       console.log('PAGE LOG:', msg.text());
-    }); 
+    });
 
     // Espera um pouco para o conteúdo carregar
     await new Promise((resolve) => setTimeout(resolve, 1500));
@@ -39,36 +41,45 @@ export class ScrapingService {
 
     const olds = await page.evaluate(() => {
       const oddsData: Record<string, any[]> = {};
+
       // Captura todos os sites de apostas
-      const bettingSites = Array.from(document.querySelectorAll('.ui-table__row .oddsCell__bookmaker .prematchLink'));
-      const oddsRows = Array.from(document.querySelectorAll('.ui-table__row')); 
+      const oddsRows = Array.from(document.querySelectorAll('.ui-table__row'));
 
-      if (bettingSites.length === 0 || oddsRows.length === 0) {
-        console.warn('No betting sites or odds rows found.');
+      if (oddsRows.length === 0) {
+        console.warn('No odds rows found.');
       }
-      oddsRows.forEach(row => {
-        const site = row.querySelector('.ui-table__row .oddsCell__bookmaker').querySelector('a')?.title || null;
-        const image = row.querySelector('.ui-table__row .oddsCell__bookmaker').querySelector('img')?.src || null;
-        if (site) {
-          const odds = Array.from(row.querySelectorAll('.oddsCell__odd')).map(odd => {
-            const oddElement = odd as HTMLElement; // Asserção de tipo
-            return { 
-              value: oddElement.textContent.trim()
-            };
 
-          }); 
+      oddsRows.forEach((row) => {
+        const site = row.querySelector('.oddsCell__bookmaker').querySelector("a")?.title || null;
+        const image = row.querySelector('.oddsCell__bookmaker ').querySelector("img")?.src || null;
+
+        if (site) {
+          const odds = Array.from(row.querySelectorAll('.oddsCell__odd')).map((odd) => {
+            const oddElement = odd as HTMLElement; // Asserção de tipo
+            return {
+              value: oddElement.textContent.trim(),
+            };
+          });
 
           if (!oddsData[site]) {
             oddsData[site] = [];
           }
-          oddsData[site].push({ image, ...odds});
+
+          oddsData[site].push({
+            odds: odds,
+            image: image,
+          });
         }
       });
+
       return oddsData;
     });
+
+    console.log('Odds data:', olds);
     return olds;
   }
 
+  // Obtém os dados da partida, incluindo as odds
   async getMatchData(page, matchId): Promise<any> {
     const url = `https://www.flashscore.com/match/${matchId}/#/match-summary/match-statistics/0`;
     console.log(`Navigating to ${url}`);
@@ -98,15 +109,18 @@ export class ScrapingService {
     });
 
     const { homeTeamName, awayTeamName, homeGoals, awayGoals } = data;
+
+    // Retornando os dados da partida junto com as odds
     return {
       [homeTeamName]: {
         goals: homeGoals,
-        bettingInfo: oldsData[homeTeamName] || [], // Adicionando odds ao time da casa
       },
       [awayTeamName]: {
         goals: awayGoals,
-        bettingInfo: oldsData[awayTeamName] || [], // Adicionando odds ao time visitante
+        //bettingInfo: oldsData[awayTeamName] || [], // Adicionando odds ao time visitante
       },
+      olds: oldsData
     };
   }
 }
+

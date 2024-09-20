@@ -8,22 +8,12 @@ export class FlashscoreController {
 
   @Get('futebol')
   async getFutebol(@Res() res: Response) {
-    const observable = await this.flashscoreService.getFutebol();
-
-    res.setHeader('Content-Type', 'application/json');
-    res.write('['); // Inicia um array JSON
-
-    observable.subscribe({
-      next: (data) => {
-        res.write(JSON.stringify(data) + ','); // Envia os dados conforme eles são emitidos
-      },
-      complete: () => {
-        res.write(']'); // Fecha o array JSON
-        res.end();
-      },
-      error: (err) => {
-        res.status(500).send({ error: err });
-      },
-    });
+    try {
+      const matchData = await this.flashscoreService.getFutebol(); // Obtém os dados como um array de Promise
+      res.setHeader('Content-Type', 'application/json');
+      res.status(200).json(matchData); // Retorna os dados diretamente como JSON
+    } catch (error) {
+      res.status(500).send({ error: 'Erro ao buscar dados de futebol' }); // Lida com erros e retorna status 500
+    }
   }
 }
