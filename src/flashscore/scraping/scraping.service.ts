@@ -7,7 +7,7 @@ export class ScrapingService {
 
   // lista de IDs das partidas
   async getMatchIdList(page): Promise<string[]> {
-    const url = `https://www.flashscore.com/football/brazil/serie-a/results/`;
+    const url = `https://www.flashscore.com/football/brazil/serie-a-betano/results/`;
     await page.goto(url);
     await this.clickService.clickElementIfExists(page, "#onetrust-accept-btn-handler");
     await this.clickService.customClick(page, "a.event__more.event__more--static");
