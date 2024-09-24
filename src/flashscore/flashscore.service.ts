@@ -10,7 +10,7 @@ export class FlashscoreService {
 
   async getFutebol(): Promise<MatchDataDto[]> {
     let browser;
-    const matchDataList: MatchDataDto[] = []; // Armazenar os dados de todas as partidas
+    const matchDataList: MatchDataDto[] = [];
 
     try {
       browser = await puppeteer.launch({
